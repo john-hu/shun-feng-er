@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Shun-Feng-Er</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="label_address">Address:</string>
+    <string name="button_connect">Connect</string>
+    <string name="text_description_address">The IP or DNS of your PC.</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connecting_to">Connecting to %1$s</string>
+    <string name="status_connected">Connected to %1$s</string>
+    <string name="status_error_no_address">Please specify IP or DNS before connect.</string>
+</resources>
