@@ -4,6 +4,7 @@
     <string name="action_settings">Settings</string>
     <string name="label_address">Address:</string>
     <string name="button_connect">Connect</string>
+    <string name="button_disconnect">Disconnect</string>
     <string name="text_description_address">The IP or DNS of your PC.</string>
     <string name="status_disconnected">Disconnected</string>
     <string name="status_connecting_to">Connecting to %1$s</string>
