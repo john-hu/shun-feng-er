@@ -142,6 +142,7 @@ public class AudioSocket {
     private boolean handleInputMessage(InputStream is) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String data = reader.readLine();
+        logger.log(Level.INFO, "data: " + data);
         if (null == data) {
             return false;
         } else if (!"".equals(data)) {

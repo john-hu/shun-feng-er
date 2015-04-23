@@ -62,8 +62,8 @@ public class Main {
 
         Mixer mixer = AudioSystem.getMixer(mixerInfo);
         AudioCapture capture = new AudioCapture();
-        AudioFormat format = AudioCapture.getAudioFormat(AudioCapture.SampleRates.EIGHT_K,
-                AudioCapture.Bits.EIGHT);
+        AudioFormat format = AudioCapture.getAudioFormat(AudioCapture.SampleRates.FORTY_FOUR_K,
+                AudioCapture.Bits.SIXTEEN);
         return capture.capture(format, null, mixer);
     }
 
