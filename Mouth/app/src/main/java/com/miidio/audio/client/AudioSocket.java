@@ -26,8 +26,10 @@ public class AudioSocket {
         listener = l;
     }
 
-    public synchronized void addKeyInfo(String type, int code) {
-        keys.add(KeyInfo.create(type, code));
+    public void addKeyInfo(String type, int code) {
+        synchronized (AudioSocket.this) {
+            keys.add(KeyInfo.create(type, code));
+        }
     }
 
     public synchronized void start(final String address, final int port) {
@@ -102,24 +104,25 @@ public class AudioSocket {
             public void run() {
                 BufferedWriter br = new BufferedWriter(new OutputStreamWriter(out));
                 while (running) {
-                    if (keys.size() > 0) {
-                        for (KeyInfo info : keys) {
-                            try {
-                                Log.d(TAG, "write command to server: " + info.toString());
-                                br.write(info.toString());
-                                br.newLine();
-                                br.flush();
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                    synchronized (AudioSocket.this) {
+                        if (keys.size() > 0) {
+                            for (KeyInfo info : keys) {
+                                try {
+                                    Log.d(TAG, "write command to server: " + info.toString());
+                                    br.write(info.toString());
+                                    br.newLine();
+                                    br.flush();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
+                            keys.clear();
                         }
-                        keys.clear();
-                    } else {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                    }
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
                 try {

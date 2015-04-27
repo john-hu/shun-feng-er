@@ -2,6 +2,7 @@ package com.miidio.audio.client;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -137,11 +138,19 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        boolean consumed = false;
         if (null != socket) {
             String type = KeyEvent.ACTION_DOWN == event.getAction() ? CMD_KEYPRESS : CMD_KEYRELEASE;
-            // TODO write a mapper to map android key code to PC?
-            socket.addKeyInfo(type, event.getKeyCode());
+            int keyCode = PCKeyMapper.get(event.getKeyCode());
+            Log.d("AA", event.getKeyCode() + " => " + keyCode);
+            if (keyCode > 0) {
+                socket.addKeyInfo(type, keyCode);
+                consumed = true;
+            } else {
+                consumed = false;
+            }
+
         }
-        return super.dispatchKeyEvent(event);
+        return consumed || super.dispatchKeyEvent(event);
     }
 }
