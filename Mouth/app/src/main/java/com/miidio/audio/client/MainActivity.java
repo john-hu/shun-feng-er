@@ -2,6 +2,7 @@ package com.miidio.audio.client;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -92,6 +93,9 @@ public class MainActivity extends ActionBarActivity {
                         statusLabel.setText(String.format(
                                 getResources().getString(R.string.status_connected),
                                 finalAddress));
+                        // A trick to hide keyboard.
+                        addressText.setInputType(InputType.TYPE_NULL);
+                        addressText.setEnabled(false);
                     }
                 });
             }
@@ -104,6 +108,9 @@ public class MainActivity extends ActionBarActivity {
                         connectButton.setEnabled(true);
                         statusLabel.setText(R.string.status_disconnected);
                         connectButton.setText(R.string.button_connect);
+                        addressText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+                        addressText.setEnabled(true);
+                        addressText.requestFocus();
                     }
                 });
             }
@@ -142,7 +149,6 @@ public class MainActivity extends ActionBarActivity {
         if (null != socket) {
             String type = KeyEvent.ACTION_DOWN == event.getAction() ? CMD_KEYPRESS : CMD_KEYRELEASE;
             int keyCode = PCKeyMapper.get(event.getKeyCode());
-            Log.d("AA", event.getKeyCode() + " => " + keyCode);
             if (keyCode > 0) {
                 socket.addKeyInfo(type, keyCode);
                 consumed = true;
