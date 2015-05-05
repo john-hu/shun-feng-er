@@ -101,8 +101,15 @@ public class PCKeyMapper {
         map.put(151, 103);//NUMPAD_7
         map.put(152, 104);//NUMPAD_8
         map.put(153, 105);//NUMPAD_9
-
-        // Skipped ADD
+        map.put(158, 46);//NUMPAD_DOT
+        map.put(79, 92);//NUMPAD_BACKSLASH
+        map.put(161, 61);//NUMPAD_EQUALS
+//        Java doesn't support media keys.
+//        map.put(86, ??);//MEDIA_STOP
+//        map.put(164, ??);//VOLUME_MUTE
+//        map.put(24, ??);//VOLUME_UP
+//        map.put(25, ??);//VOLUME_DOWN
+        map.put(158, 44);//NUMPAD_COMMA
         map.put(76, 111);//DIVIDE
         map.put(57, 18);//LEFTALT
         map.put(58, 18);//RIGHTALT
