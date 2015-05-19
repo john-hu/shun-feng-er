@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public class AudioSocket {
 
+    private static final String HEADER_PASSWORD = "HELO ";
     private static final String TAG = "AudioSocket";
     private Thread connThread;
     private Socket remote;
@@ -21,6 +22,11 @@ public class AudioSocket {
     private ArrayList<KeyInfo> keys = new ArrayList<>();
     private Thread digesterThread;
     private Listener listener;
+    private String password;
+
+    public AudioSocket(String password) {
+        this.password = password;
+    }
 
     public void setListener(Listener l) {
         listener = l;
@@ -79,11 +85,6 @@ public class AudioSocket {
             e.printStackTrace();
             Log.e(TAG, "error while playing", e);
         } finally {
-            // notify listener
-            if (null != listener) {
-                listener.onDisconnected();
-            }
-
             Log.d(TAG, "free resources");
             player.close();
             running = false;
@@ -95,6 +96,10 @@ public class AudioSocket {
                     e.printStackTrace();
                 }
             }
+            // notify listener
+            if (null != listener) {
+                listener.onDisconnected();
+            }
         }
     }
 
@@ -103,6 +108,14 @@ public class AudioSocket {
             @Override
             public void run() {
                 BufferedWriter br = new BufferedWriter(new OutputStreamWriter(out));
+                // challenge password.
+                try {
+                    br.write(HEADER_PASSWORD + AudioSocket.this.password);
+                    br.newLine();
+                    br.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 while (running) {
                     synchronized (AudioSocket.this) {
                         if (keys.size() > 0) {
@@ -159,6 +172,9 @@ public class AudioSocket {
             read = input.read(buffer, 0, buffer.length);
             if (read > 0) {
                 player.play(buffer, read);
+            } else if (read < 0) {
+                // remote disconnected.
+                break;
             }
         }
     }

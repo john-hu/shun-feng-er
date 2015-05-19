@@ -24,6 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/button_connect"
+        android:layout_toEndOf="@+id/text_password"
         android:layout_toLeftOf="@+id/button_connect"
         android:layout_toRightOf="@+id/label_address"
         android:contentDescription="@string/text_description_address"
@@ -53,4 +54,25 @@
         android:layout_alignParentStart="true"
         android:text="@string/status_disconnected"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/label_passwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/text_password"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="@string/label_password"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/text_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_address"
+        android:layout_toLeftOf="@+id/button_connect"
+        android:layout_toRightOf="@+id/label_passwd"
+        android:layout_toStartOf="@+id/button_connect"
+        android:ems="10"
+        android:inputType="textPassword" />
 </RelativeLayout>

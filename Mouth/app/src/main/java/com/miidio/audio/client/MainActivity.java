@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +22,7 @@ public class MainActivity extends ActionBarActivity {
 
     private Button connectButton;
     private EditText addressText;
+    private EditText passwordText;
     private TextView statusLabel;
     private AudioSocket socket;
 
@@ -37,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
     private void initViews() {
         connectButton = (Button) this.findViewById(R.id.button_connect);
         addressText = (EditText) this.findViewById(R.id.text_address);
+        passwordText = (EditText) this.findViewById(R.id.text_password);
         statusLabel = (TextView) this.findViewById(R.id.label_status);
 
         connectButton.setOnClickListener(new View.OnClickListener() {
@@ -68,7 +69,6 @@ public class MainActivity extends ActionBarActivity {
     private void disconnect() {
         connectButton.setEnabled(false);
         socket.stop(false);
-        socket = null;
     }
 
     private void connect() {
@@ -81,13 +81,13 @@ public class MainActivity extends ActionBarActivity {
         String address = addressText.getText().toString();
         int port = 13579;
         if (address.contains(":")) {
-            int separator = address.indexOf(":");
-            address = address.substring(0, separator);
-            port = Integer.parseInt(address.substring(separator));
+            String[] data = address.split(":", 2);
+            address = data[0];
+            port = Integer.parseInt(data[1]);
         }
 
         final String finalAddress = address;
-        socket = new AudioSocket();
+        socket = new AudioSocket("" + passwordText.getText());
         socket.setListener(new AudioSocket.Listener() {
             @Override
             public void onConnected() {
@@ -102,6 +102,9 @@ public class MainActivity extends ActionBarActivity {
                         // A trick to hide keyboard.
                         addressText.setInputType(InputType.TYPE_NULL);
                         addressText.setEnabled(false);
+                        passwordText.setInputType(InputType.TYPE_NULL);
+                        passwordText.setEnabled(false);
+                        passwordText.setText("");
                     }
                 });
             }
@@ -117,6 +120,9 @@ public class MainActivity extends ActionBarActivity {
                         addressText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
                         addressText.setEnabled(true);
                         addressText.requestFocus();
+                        passwordText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        passwordText.setEnabled(true);
+                        socket = null;
                     }
                 });
             }

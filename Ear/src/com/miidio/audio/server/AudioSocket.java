@@ -13,6 +13,7 @@ public class AudioSocket {
 
     private final static String CMD_KEYPRESS = "press";
     private final static String CMD_KEYRELEASE = "release";
+    private final static String PASSWORD_PREFIX = "HELO ";
     private static Logger logger = Logger.getLogger(AudioSocket.class.getName());
     private Thread serverThread;
     private ServerSocket serverSocket;
@@ -20,9 +21,16 @@ public class AudioSocket {
     private boolean running;
     private Robot robot;
     private EventListenerList listenerList = new EventListenerList();
+    private String password;
+    private boolean connectionTrusted;
 
     public AudioSocket(int port) throws IOException, AWTException {
+        this(port, null);
+    }
+
+    public AudioSocket(int port, String password) throws IOException, AWTException {
         serverSocket = new ServerSocket(port);
+        this.password = password;
         robot = new Robot();
         robot.setAutoDelay(0);
     }
@@ -47,6 +55,7 @@ public class AudioSocket {
             public void run() {
 
                 logger.log(Level.INFO, "AudioServer is running with port " + serverSocket.getLocalPort() + ".");
+                logger.log(Level.INFO, "AudioServer has password: " + (AudioSocket.this.password != null) + ".");
                 while (running) {
                     try {
                         logger.log(Level.INFO, "Waiting for connection...");
@@ -115,6 +124,7 @@ public class AudioSocket {
         try {
             is = activeSocket.getInputStream();
             os = activeSocket.getOutputStream();
+            this.connectionTrusted = false;
             fireConnectedEvent(is, os);
             // We use the server thread to handle the remote input because we only
             // accept one connection at the same time.
@@ -126,7 +136,7 @@ public class AudioSocket {
                 }
             }
 
-            logger.log(Level.INFO, "client disconnected");
+            logger.log(Level.INFO, "client disconnected or wrong password");
         } catch (IOException e) {
             logger.log(Level.WARNING, "reading input from socket error", e);
         } finally {
@@ -142,12 +152,26 @@ public class AudioSocket {
     private boolean handleInputMessage(InputStream is) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String data = reader.readLine();
-        logger.log(Level.INFO, "data: " + data);
         if (null == data) {
             return false;
         } else if (!"".equals(data)) {
-            handleCommand(data.split(","));
-            return true;
+            if (data.startsWith(PASSWORD_PREFIX)) {
+                if (null == this.password || this.connectionTrusted) {
+                    // always accept connection if no password found.
+                    this.connectionTrusted = true;
+                    return true;
+                }
+                this.connectionTrusted = (PASSWORD_PREFIX + this.password).equals(data);
+                logger.log(Level.INFO, "challenge password: " + this.connectionTrusted);
+                return this.connectionTrusted;
+            } else if (this.connectionTrusted) {
+                logger.log(Level.INFO, "data: " + data);
+                handleCommand(data.split(","));
+                return true;
+            } else {
+                return false;
+            }
+
         } else {
             return true;
         }

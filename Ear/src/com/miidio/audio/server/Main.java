@@ -38,8 +38,8 @@ public class Main {
         return capture.capture(format, null, mixer);
     }
 
-    private static void startServer(int port, String mixerName) throws Exception {
-        AudioSocket socket = new AudioSocket(port);
+    private static void startServer(int port, String mixerName, String password) throws Exception {
+        AudioSocket socket = new AudioSocket(port, password);
         final CaptureThread capturer = createRecorder(mixerName);
         socket.addEventListener(new AudioSocket.Listener() {
             @Override
@@ -62,17 +62,23 @@ public class Main {
         jsap.registerParameter(new FlaggedOption("mixer")
                 .setStringParser(JSAP.STRING_PARSER)
                 .setDefault("kuwatec")
-                .setRequired(true)
                 .setShortFlag('m')
                 .setLongFlag("mixer")
                 .setHelp("The audio loopback driver name. We will use this name to query mixer device."));
+
         jsap.registerParameter(new FlaggedOption("port")
                 .setStringParser(JSAP.INTEGER_PARSER)
                 .setDefault("13579")
-                .setRequired(false)
                 .setShortFlag('p')
                 .setLongFlag("port")
                 .setHelp("server port"));
+
+        jsap.registerParameter(new FlaggedOption("password")
+                .setStringParser(JSAP.STRING_PARSER)
+                .setRequired(false)
+                .setShortFlag('P')
+                .setLongFlag("password")
+                .setHelp("The password to control and listen your computer"));
 
         JSAPResult opts = jsap.parse(args);
 
@@ -87,6 +93,8 @@ public class Main {
             System.err.println("port should between 1 and 65535");
             System.exit(2);
         }
-        startServer(opts.getInt("port"), opts.getString("mixer"));
+        startServer(opts.getInt("port"),
+                opts.getString("mixer"),
+                opts.getString("password", null));
     }
 }

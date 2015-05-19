@@ -10,4 +10,5 @@
     <string name="status_connecting_to">Connecting to %1$s</string>
     <string name="status_connected">Connected to %1$s</string>
     <string name="status_error_no_address">Please specify IP or DNS before connect.</string>
+    <string name="label_password">Password:</string>
 </resources>
