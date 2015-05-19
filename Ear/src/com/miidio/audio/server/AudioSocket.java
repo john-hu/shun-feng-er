@@ -46,7 +46,7 @@ public class AudioSocket {
             @Override
             public void run() {
 
-                logger.log(Level.INFO, "AudioServer is running.");
+                logger.log(Level.INFO, "AudioServer is running with port " + serverSocket.getLocalPort() + ".");
                 while (running) {
                     try {
                         logger.log(Level.INFO, "Waiting for connection...");
