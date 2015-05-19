@@ -1,5 +1,6 @@
 package com.miidio.audio.client;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 public class MainActivity extends ActionBarActivity {
     private final static String CMD_KEYPRESS = "press";
     private final static String CMD_KEYRELEASE = "release";
+
+    private final static String KEY_LAST_CONN_ADDR = "last_conn_addr";
 
     private Button connectButton;
     private EditText addressText;
@@ -46,6 +49,9 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         });
+
+        SharedPreferences setting = getPreferences(MODE_PRIVATE);
+        addressText.setText(setting.getString(KEY_LAST_CONN_ADDR, ""));
     }
 
     @Override
@@ -119,6 +125,11 @@ public class MainActivity extends ActionBarActivity {
         statusLabel.setText(String.format(
                 this.getResources().getString(R.string.status_connecting_to),
                 address));
+
+        SharedPreferences settings = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(KEY_LAST_CONN_ADDR, addressText.getText().toString());
+        editor.commit();
     }
 
     @Override
