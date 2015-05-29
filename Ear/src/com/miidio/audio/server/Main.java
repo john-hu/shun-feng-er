@@ -54,7 +54,9 @@ public class Main {
         ks.load(new FileInputStream(new File(keyPath)), passphrase);
         kmf.init(ks, passphrase);
         ctx.init(kmf.getKeyManagers(), null, null);
-        return ctx.getServerSocketFactory().createServerSocket(port);
+        ServerSocket ss = ctx.getServerSocketFactory().createServerSocket(port);
+        ss.setPerformancePreferences(1, 2, 0);
+        return ss;
     }
 
     private static void startServer(String keyPath, String keyPass, int port, String mixerName,
