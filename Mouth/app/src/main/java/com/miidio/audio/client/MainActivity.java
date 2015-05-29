@@ -87,7 +87,8 @@ public class MainActivity extends ActionBarActivity {
         }
 
         final String finalAddress = address;
-        socket = new AudioSocket("" + passwordText.getText());
+        socket = new AudioSocket(getResources().openRawResource(R.raw.rootca),
+                "" + passwordText.getText());
         socket.setListener(new AudioSocket.Listener() {
             @Override
             public void onConnected() {

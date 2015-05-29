@@ -24,12 +24,15 @@ public class AudioSocket {
     private String password;
     private boolean connectionTrusted;
 
-    public AudioSocket(int port) throws IOException, AWTException {
-        this(port, null);
+    public AudioSocket(ServerSocket serverSocket)
+            throws IOException, AWTException {
+        this(serverSocket, null);
     }
 
-    public AudioSocket(int port, String password) throws IOException, AWTException {
-        serverSocket = new ServerSocket(port);
+    public AudioSocket(ServerSocket serverSocket, String password)
+            throws IOException, AWTException {
+
+        this.serverSocket = serverSocket;
         this.password = password;
         robot = new Robot();
         robot.setAutoDelay(0);

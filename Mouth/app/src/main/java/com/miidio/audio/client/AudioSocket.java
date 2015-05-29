@@ -8,7 +8,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 public class AudioSocket {
 
@@ -23,9 +33,12 @@ public class AudioSocket {
     private Thread digesterThread;
     private Listener listener;
     private String password;
+    private InputStream caFile;
+    private TrustManagerFactory trustMgrFactory;
 
-    public AudioSocket(String password) {
+    public AudioSocket(InputStream caFile, String password) {
         this.password = password;
+        this.caFile = caFile;
     }
 
     public void setListener(Listener l) {
@@ -55,17 +68,6 @@ public class AudioSocket {
             return;
         }
         this.running = false;
-        if (null != remote) {
-            if (!remote.isClosed()) {
-                try {
-                    Log.d(TAG, "trying to close socket");
-                    remote.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            remote = null;
-        }
 
         if (join) {
             try {
@@ -87,6 +89,17 @@ public class AudioSocket {
         } finally {
             Log.d(TAG, "free resources");
             player.close();
+            if (null != remote) {
+                if (!remote.isClosed()) {
+                    try {
+                        Log.d(TAG, "trying to close socket");
+                        remote.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                remote = null;
+            }
             running = false;
             connThread = null;
             if (null != digesterThread) {
@@ -153,9 +166,36 @@ public class AudioSocket {
         bufferSize = player.prepareDevice();
     }
 
-    private void connect(String address, int port) throws IOException {
+    private Socket createSocket(String address, int port) throws CertificateException, IOException,
+            KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+
+        if (null == this.trustMgrFactory) {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate ca;
+            try {
+                ca = cf.generateCertificate(this.caFile);
+            } finally {
+                this.caFile.close();
+            }
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(null, null);
+            ks.setCertificateEntry("ca", ca);
+
+            this.trustMgrFactory = TrustManagerFactory.getInstance(
+                    TrustManagerFactory.getDefaultAlgorithm());
+            this.trustMgrFactory.init(ks);
+        }
+
+        SSLContext context = SSLContext.getInstance("TLS");
+        context.init(null, this.trustMgrFactory.getTrustManagers(), null);
+        return context.getSocketFactory().createSocket(address, port);
+    }
+
+    private void connect(String address, int port) throws IOException, CertificateException,
+            NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+
         Log.d(TAG, "Connecting to " + address);
-        remote = new Socket(address, port);
+        remote = createSocket(address, port);
         // prepare variables
         int read;
         byte[] buffer = new byte[bufferSize];

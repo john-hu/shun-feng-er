@@ -4,12 +4,16 @@ import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.JSAPResult;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.ServerSocket;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,8 +42,25 @@ public class Main {
         return capture.capture(format, null, mixer);
     }
 
-    private static void startServer(int port, String mixerName, String password) throws Exception {
-        AudioSocket socket = new AudioSocket(port, password);
+    private static ServerSocket getServerSocket(int port, String keyPath, String keyPass)
+            throws NoSuchAlgorithmException, KeyStoreException, IOException,
+            KeyManagementException, CertificateException, UnrecoverableKeyException {
+
+        // we use TLS as default
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+        KeyStore ks = KeyStore.getInstance("JKS");
+        char[] passphrase = keyPass.toCharArray();
+        ks.load(new FileInputStream(new File(keyPath)), passphrase);
+        kmf.init(ks, passphrase);
+        ctx.init(kmf.getKeyManagers(), null, null);
+        return ctx.getServerSocketFactory().createServerSocket(port);
+    }
+
+    private static void startServer(String keyPath, String keyPass, int port, String mixerName,
+                                    String password) throws Exception {
+
+        AudioSocket socket = new AudioSocket(getServerSocket(port, keyPath, keyPass), password);
         final CaptureThread capturer = createRecorder(mixerName);
         socket.addEventListener(new AudioSocket.Listener() {
             @Override
@@ -79,6 +100,18 @@ public class Main {
                 .setShortFlag('P')
                 .setLongFlag("password")
                 .setHelp("The password to control and listen your computer"));
+        jsap.registerParameter(new FlaggedOption("key-path")
+                .setStringParser(JSAP.STRING_PARSER)
+                .setRequired(true)
+                .setShortFlag('K')
+                .setLongFlag("key-path")
+                .setHelp("The path to control and listen your computer"));
+        jsap.registerParameter(new FlaggedOption("key-pass")
+                .setStringParser(JSAP.STRING_PARSER)
+                .setRequired(true)
+                .setShortFlag('k')
+                .setLongFlag("key-pass")
+                .setHelp("The password to control and listen your computer"));
 
         JSAPResult opts = jsap.parse(args);
 
@@ -93,7 +126,9 @@ public class Main {
             System.err.println("port should between 1 and 65535");
             System.exit(2);
         }
-        startServer(opts.getInt("port"),
+        startServer(opts.getString("key-path"),
+                opts.getString("key-pass"),
+                opts.getInt("port"),
                 opts.getString("mixer"),
                 opts.getString("password", null));
     }
