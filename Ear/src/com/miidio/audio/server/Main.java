@@ -4,6 +4,7 @@ import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.JSAPResult;
 
+import javax.net.ServerSocketFactory;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.sound.sampled.AudioFormat;
@@ -46,17 +47,21 @@ public class Main {
             throws NoSuchAlgorithmException, KeyStoreException, IOException,
             KeyManagementException, CertificateException, UnrecoverableKeyException {
 
-        // we use TLS as default
-        SSLContext ctx = SSLContext.getInstance("TLS");
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-        KeyStore ks = KeyStore.getInstance("JKS");
-        char[] passphrase = keyPass.toCharArray();
-        ks.load(new FileInputStream(new File(keyPath)), passphrase);
-        kmf.init(ks, passphrase);
-        ctx.init(kmf.getKeyManagers(), null, null);
-        ServerSocket ss = ctx.getServerSocketFactory().createServerSocket(port);
-        ss.setPerformancePreferences(1, 2, 0);
-        return ss;
+        if (null == keyPath || null == keyPass) {
+            return ServerSocketFactory.getDefault().createServerSocket(port);
+        } else {
+            // we use TLS as default
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+            KeyStore ks = KeyStore.getInstance("JKS");
+            char[] passphrase = keyPass.toCharArray();
+            ks.load(new FileInputStream(new File(keyPath)), passphrase);
+            kmf.init(ks, passphrase);
+            ctx.init(kmf.getKeyManagers(), null, null);
+            ServerSocket ss = ctx.getServerSocketFactory().createServerSocket(port);
+            ss.setPerformancePreferences(1, 2, 0);
+            return ss;
+        }
     }
 
     private static void startServer(String keyPath, String keyPass, int port, String mixerName,
@@ -104,13 +109,11 @@ public class Main {
                 .setHelp("The password to control and listen your computer"));
         jsap.registerParameter(new FlaggedOption("key-path")
                 .setStringParser(JSAP.STRING_PARSER)
-                .setRequired(true)
                 .setShortFlag('K')
                 .setLongFlag("key-path")
                 .setHelp("The path to control and listen your computer"));
         jsap.registerParameter(new FlaggedOption("key-pass")
                 .setStringParser(JSAP.STRING_PARSER)
-                .setRequired(true)
                 .setShortFlag('k')
                 .setLongFlag("key-pass")
                 .setHelp("The password to control and listen your computer"));
@@ -119,7 +122,7 @@ public class Main {
 
         if (!opts.success()) {
             System.err.println();
-            System.err.println("Usage: java " + Main.class.getName());
+            System.err.println("Usage: java -jar AudioServer.jar");
             System.err.println("                " + jsap.getUsage());
             System.err.println();
             System.err.println(jsap.getHelp());
