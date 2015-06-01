@@ -68,7 +68,7 @@ The password is just a password which is not linked with your windows account. I
 
 #### Key store
 
-The key is the most confusing part. It is a key store for building SSL connections. Like most of the SSL CA, you can use your SSL key brought by other key certification center. If you don't have one, you may TEST the server with the [sample key](https://github.com/john-hu/shun-feng-er/blob/latest/sample-keys/server1.jks) at our github repo. The password of this sample key is `shun-feng-er`. You may use the following arguments at the end of command: `--key-path server1.jks --key-pass shun-feng-er`.
+The key is the most confusing part. It is a key store for building SSL connections. Like most of the SSL CA, you can use your SSL key bought by other key certification center. If you don't have one, you may TEST the server with the [sample key](https://github.com/john-hu/shun-feng-er/blob/latest/sample-keys/server1.jks) at our github repo. The password of this sample key is `shun-feng-er`. You may use the following arguments at the end of command: `--key-path server1.jks --key-pass shun-feng-er`.
 
 Please note this is a sample key and we had opened its password here. Everyone can read the private key from this key store. So, please DO NOT use it as a primary key.
 
