@@ -2,6 +2,7 @@ package com.miidio.audio.server;
 
 import javax.sound.sampled.TargetDataLine;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,17 +13,22 @@ public class CaptureThread extends Thread {
     private static Logger logger = Logger.getLogger(CaptureThread.class.getName());
 
     private TargetDataLine line;
-    private OutputStream out;
+    private ArrayList<OutputStream> outList = new ArrayList<OutputStream>();
     private boolean stop;
 
-    public CaptureThread(TargetDataLine line, OutputStream out) {
+    public CaptureThread(TargetDataLine line) {
         this.line = line;
-        this.out = out;
     }
 
-    public void setOutputStream(OutputStream out) {
+    public void addOutputStream(OutputStream out) {
         synchronized (this) {
-            this.out = out;
+            this.outList.add(out);
+        }
+    }
+
+    public void removeOutputStream(OutputStream out) {
+        synchronized (this) {
+            this.outList.remove(out);
         }
     }
 
@@ -45,10 +51,12 @@ public class CaptureThread extends Thread {
                 if (read > 0) {
                     synchronized (CaptureThread.this) {
                         // Once the audio socket connected, we may set the out stream.
-                        if (null != out) {
-                            out.write(buffer, 0, read);
-                            out.flush();
-                            logger.log(Level.FINEST, "write " + read + " bytes to output");
+                        if (outList.size() > 0) {
+                            for (OutputStream out : outList) {
+                                out.write(buffer, 0, read);
+                                out.flush();
+                            }
+                            logger.log(Level.FINEST, "write " + read + " bytes to output list");
                         }
                     }
                 }

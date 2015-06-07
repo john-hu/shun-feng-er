@@ -40,7 +40,7 @@ public class Main {
         AudioCapture capture = new AudioCapture();
         AudioFormat format = AudioCapture.getAudioFormat(AudioCapture.SampleRates.FORTY_FOUR_K,
                 AudioCapture.Bits.SIXTEEN);
-        return capture.capture(format, null, mixer);
+        return capture.capture(format, mixer);
     }
 
     private static ServerSocket getServerSocket(int port, String keyPath, String keyPass)
@@ -65,21 +65,22 @@ public class Main {
     }
 
     private static void startServer(String keyPath, String keyPass, int port, String mixerName,
-                                    String password) throws Exception {
+                                    String password, String listenerPassword) throws Exception {
 
-        AudioSocket socket = new AudioSocket(getServerSocket(port, keyPath, keyPass), password);
+        AudioSocket socket = new AudioSocket(getServerSocket(port, keyPath, keyPass),
+                password, listenerPassword);
         final CaptureThread capturer = createRecorder(mixerName);
         socket.addEventListener(new AudioSocket.Listener() {
             @Override
             public void onConnected(InputStream is, OutputStream os) {
                 // This is the first prototype, we should compress the audio stream before
                 // sending.
-                capturer.setOutputStream(os);
+                capturer.addOutputStream(os);
             }
 
             @Override
-            public void onDisconnected() {
-                capturer.setOutputStream(null);
+            public void onDisconnected(InputStream is, OutputStream os) {
+                capturer.removeOutputStream(os);
             }
         });
         socket.start();
@@ -107,6 +108,11 @@ public class Main {
                 .setShortFlag('P')
                 .setLongFlag("password")
                 .setHelp("The password to control and listen your computer"));
+        jsap.registerParameter(new FlaggedOption("listener-pass")
+                .setStringParser(JSAP.STRING_PARSER)
+                .setRequired(false)
+                .setLongFlag("listener-pass")
+                .setHelp("The password to listen your computer"));
         jsap.registerParameter(new FlaggedOption("key-path")
                 .setStringParser(JSAP.STRING_PARSER)
                 .setShortFlag('K')
@@ -135,6 +141,7 @@ public class Main {
                 opts.getString("key-pass"),
                 opts.getInt("port"),
                 opts.getString("mixer"),
-                opts.getString("password", null));
+                opts.getString("password", null),
+                opts.getString("listener-pass", null));
     }
 }
