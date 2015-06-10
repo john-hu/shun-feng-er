@@ -1,0 +1,11 @@
+# Remap some shortcuts to nothing
+# UTF-8 encoded
+type OVERLAY
+
+# remap meta key
+map key 125 F12
+map key 126 F12
+
+# remap alt key
+map key 56  F11
+map key 100 F11

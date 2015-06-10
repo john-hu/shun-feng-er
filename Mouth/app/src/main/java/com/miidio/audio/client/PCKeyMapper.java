@@ -71,8 +71,9 @@ public class PCKeyMapper {
         map.put(138, 119);//F8
         map.put(139, 120);//F9
         map.put(140, 121);//F10
-        map.put(141, 122);//F11
-        map.put(142, 123);//F12
+//        We use F11 and F12 to replace meta and alt for overriding android shortcuts.
+//        map.put(141, 122);//F11
+//        map.put(142, 123);//F12
         map.put(120, 154);//SRNPRT
         map.put(116, 145);//SCROLLLOCK
         map.put(121, 19);//PAUSE
@@ -111,14 +112,16 @@ public class PCKeyMapper {
 //        map.put(25, ??);//VOLUME_DOWN
         map.put(158, 44);//NUMPAD_COMMA
         map.put(76, 111);//DIVIDE
-        map.put(57, 18);//LEFTALT
-        map.put(58, 18);//RIGHTALT
+//        map.put(57, 18);//LEFTALT
+//        map.put(58, 18);//RIGHTALT
+        map.put(141, 18);// remap F11 to alt, that's on purpose
         map.put(59, 16);//LEFTSHIFT
         map.put(60, 16);//RIGHTSHIFT
         map.put(113, 17);//LEFTCTRL
         map.put(114, 17);//RIGHTCTRL
-        map.put(117, 157);//LEFTMETA
-        map.put(118, 157);//RIGHTMETA
+//        map.put(117, 157);//LEFTMETA
+//        map.put(118, 157);//RIGHTMETA
+        map.put(142, 157);// remap F12 to meta, that's on purpose
     }
 
     public static int get(int key) {
