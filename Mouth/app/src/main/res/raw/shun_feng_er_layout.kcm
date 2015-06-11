@@ -9,3 +9,7 @@ map key 126 F12
 # remap alt key
 map key 56  F11
 map key 100 F11
+
+# remap ctrl key
+map key 29  F10
+map key 97  F10

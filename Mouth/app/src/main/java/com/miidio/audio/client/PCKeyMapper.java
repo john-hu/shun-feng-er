@@ -70,8 +70,8 @@ public class PCKeyMapper {
         map.put(137, 118);//F7
         map.put(138, 119);//F8
         map.put(139, 120);//F9
-        map.put(140, 121);//F10
-//        We use F11 and F12 to replace meta and alt for overriding android shortcuts.
+//        We use F10 ~ F12 to replace meta and alt for overriding android shortcuts.
+//        map.put(140, 121);//F10
 //        map.put(141, 122);//F11
 //        map.put(142, 123);//F12
         map.put(120, 154);//SRNPRT
@@ -117,8 +117,9 @@ public class PCKeyMapper {
         map.put(141, 18);// remap F11 to alt, that's on purpose
         map.put(59, 16);//LEFTSHIFT
         map.put(60, 16);//RIGHTSHIFT
-        map.put(113, 17);//LEFTCTRL
-        map.put(114, 17);//RIGHTCTRL
+//        map.put(113, 17);//LEFTCTRL
+//        map.put(114, 17);//RIGHTCTRL
+        map.put(140, 17);
 //        map.put(117, 157);//LEFTMETA
 //        map.put(118, 157);//RIGHTMETA
         map.put(142, 157);// remap F12 to meta, that's on purpose
