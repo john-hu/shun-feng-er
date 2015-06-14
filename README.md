@@ -20,8 +20,9 @@ Client (Mouth) of Shun-Feng-Er is at [here](https://github.com/john-hu/shun-feng
 
 ## Install audio lookback driver
 
-- Please install an audio loopback driver, like [kuwatec audio loopback](http://www.kuwatec.co.jp/synvisum/en/man/contents/audiorec.html).
+- Please install an audio loopback driver at [kuwatec audio loopback](http://www.kuwatec.co.jp/synvisum/en/man/contents/audiorec.html).
 - Follow the instruction of audio loopback driver to configure the loopback devices.
+  - For Mac OS X users, see [How to install kuwatech Audio Loopback driver in Mac OS X](https://github.com/john-hu/shun-feng-er/wiki/How-to-install-kuwatech-Audio-Lookback-driver-in-Mac-OS-X%3F).
 
 ## Install android app
 
