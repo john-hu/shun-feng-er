@@ -127,6 +127,13 @@ public class Main {
         JSAPResult opts = jsap.parse(args);
 
         if (!opts.success()) {
+            // print out specific error messages describing the problems
+            // with the command line, THEN print usage, THEN print full
+            // help.  This is called "beating the user with a clue stick."
+            for (java.util.Iterator errs = opts.getErrorMessageIterator();
+                 errs.hasNext();) {
+                System.err.println("Error: " + errs.next());
+            }
             System.err.println();
             System.err.println("Usage: java -jar AudioServer.jar");
             System.err.println("                " + jsap.getUsage());
