@@ -1,8 +1,6 @@
 package com.miidio.audio.server;
 
-import com.martiansoftware.jsap.FlaggedOption;
-import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.*;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.KeyManagerFactory;
@@ -24,23 +22,11 @@ public class Main {
 
     private static CaptureThread createRecorder(String mixerName) throws UnsupportedFormatException,
             LineUnavailableException {
-        Mixer.Info[] mixers = AudioSystem.getMixerInfo();
-        if (null == mixers || 0 == mixers.length) {
-            throw new RuntimeException("no mixer found??");
-        }
-        Mixer.Info mixerInfo = mixers[0];
-        logger.log(Level.INFO, "query mixer starting with " + mixerName);
-        for (Mixer.Info info : mixers) {
-            if (info.getName().startsWith(mixerName)) {
-                mixerInfo = info;
-            }
-        }
 
-        Mixer mixer = AudioSystem.getMixer(mixerInfo);
         AudioCapture capture = new AudioCapture();
         AudioFormat format = AudioCapture.getAudioFormat(AudioCapture.SampleRates.FORTY_FOUR_K,
                 AudioCapture.Bits.SIXTEEN);
-        return capture.capture(format, mixer);
+        return capture.capture(format, MixerHelper.filterMixer(mixerName));
     }
 
     private static ServerSocket getServerSocket(int port, String keyPath, String keyPass)
@@ -86,7 +72,7 @@ public class Main {
         socket.start();
     }
 
-    public static void main(String[] args) throws Exception {
+    private static JSAPResult parseArgs(String[] args) throws JSAPException {
         JSAP jsap = new JSAP();
         jsap.registerParameter(new FlaggedOption("mixer")
                 .setStringParser(JSAP.STRING_PARSER)
@@ -124,8 +110,11 @@ public class Main {
                 .setLongFlag("key-pass")
                 .setHelp("The password to control and listen your computer"));
 
-        JSAPResult opts = jsap.parse(args);
 
+        jsap.registerParameter(new QualifiedSwitch("list-mixers")
+                .setLongFlag("list-mixer"));
+
+        JSAPResult opts = jsap.parse(args);
         if (!opts.success()) {
             // print out specific error messages describing the problems
             // with the command line, THEN print usage, THEN print full
@@ -144,11 +133,22 @@ public class Main {
             System.err.println("port should between 1 and 65535");
             System.exit(2);
         }
-        startServer(opts.getString("key-path"),
-                opts.getString("key-pass"),
-                opts.getInt("port"),
-                opts.getString("mixer"),
-                opts.getString("password", null),
-                opts.getString("listener-pass", null));
+        return opts;
+   }
+
+    public static void main(String[] args) throws Exception {
+
+        JSAPResult opts = parseArgs(args);
+
+        if (opts.getBoolean("list-mixers")) {
+            MixerHelper.dumpMixers();
+        } else {
+            startServer(opts.getString("key-path"),
+                    opts.getString("key-pass"),
+                    opts.getInt("port"),
+                    opts.getString("mixer"),
+                    opts.getString("password", null),
+                    opts.getString("listener-pass", null));
+        }
     }
 }
