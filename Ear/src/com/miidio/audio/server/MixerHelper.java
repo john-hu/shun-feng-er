@@ -24,7 +24,8 @@ public class MixerHelper {
         logger.log(Level.INFO, "mixer count: " + mixers.length);
 
         for(Mixer.Info info : mixers) {
-            logger.log(Level.INFO, info.toString());}
+            logger.log(Level.INFO, info.toString());
+        }
     }
 
     public static Mixer.Info[] filterMixerInfo(String mixerName) {
